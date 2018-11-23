@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Magicaster.SpellCasting;
+using ReactiveUI;
 
 namespace Magicaster
 {
@@ -23,6 +25,9 @@ namespace Magicaster
         public MainWindow()
         {
             InitializeComponent();
+            var vm = new MainWindowViewModel();
+            this.DataContext = vm;
         }
+        
     }
 }
