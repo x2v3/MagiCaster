@@ -10,6 +10,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <DataGrid Grid.Row="0" ItemsSource="{Binding Book.Spells}" 
                   RowHeight="25" MinColumnWidth="70" CanUserAddRows="True" CanUserDeleteRows="True">
@@ -19,5 +20,6 @@
             <Button Content="Save" Command="{Binding SaveSpellBookCommand}" HorizontalAlignment="Left" Height="25" Margin="149,38,0,0" VerticalAlignment="Top" Width="71"/>
             <Button Content="Start" Command="{Binding StartSpeechEngineCommand}" HorizontalAlignment="Left" Height="25" Margin="395,38,0,0" VerticalAlignment="Top" Width="71"/>
         </Grid>
+        <Label Grid.Row="2" Margin="2" Content="{Binding StatusMessage}"></Label>
     </Grid>
 </Window>

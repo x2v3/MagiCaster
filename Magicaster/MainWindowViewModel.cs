@@ -43,7 +43,7 @@ namespace Magicaster
 
         private Spell selectedSpell;
         private Caster caster = new Caster();
-
+        private string statusMessage = "Stopped";
         private SpellBook spellBook = new SpellBook();
 
         public SpellBook Book
@@ -64,10 +64,23 @@ namespace Magicaster
 
         public ICommand StartSpeechEngineCommand { get; }
 
+        public string StatusMessage
+        {
+            get => statusMessage;
+            set => this.RaiseAndSetIfChanged(ref statusMessage, value);
+        }
+
         private void ExecuteStartSpeechEngine()
         {
             caster.Spells = Book.Spells.ToList();
             caster.InitRecognition();
+            caster.SpellCasted += Caster_SpellCasted;
+            StatusMessage = "Running";
+        }
+
+        private void Caster_SpellCasted(object sender, Caster.CastSpellEventAgrs e)
+        {
+             StatusMessage = $"{DateTime.Now:T} Spell Cast:{e.Spell.Words}"; 
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Magicaster
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-            Thread.CurrentThread.CurrentUICulture= new CultureInfo("en-Us");
+            //Thread.CurrentThread.CurrentUICulture= new CultureInfo("en-Us");
         }
     }
 }

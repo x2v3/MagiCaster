@@ -16,25 +16,30 @@ namespace Magicaster.SpellCasting
         private bool isSpellCasting;
 
         public List<Spell> Spells { get; set; } = new List<Spell>();
+        public event EventHandler<CastSpellEventAgrs> SpellCasted;
 
         public void InitRecognition()
         {
-            sre?.RecognizeAsyncStop();
-            if (Spells != null)
+            var t = Task.Run(() =>
             {
-                var spellwords = from s in Spells select s.Words;
-                sre = new SpeechRecognitionEngine(CultureInfo.CurrentUICulture);
-                var grammars = CreateGrammar(spellwords);
-                foreach (var grammar in grammars)
+                sre?.RecognizeAsyncStop();
+                sre?.Dispose();
+                if (Spells != null)
                 {
-                    sre.LoadGrammar(grammar);
+                    var spellwords = from s in Spells select s.Words;
+                    sre = new SpeechRecognitionEngine(CultureInfo.CurrentCulture);
+                    var grammars = CreateGrammar(spellwords);
+                    foreach (var grammar in grammars)
+                    {
+                        sre.LoadGrammar(grammar);
+                    }
+                    sre.SetInputToDefaultAudioDevice();
+                    sre.SpeechRecognized += SpeechRecognizer_SpeechRecognized;
+                    sre.EndSilenceTimeout = TimeSpan.FromMilliseconds(50);
+
+                    sre.RecognizeAsync(RecognizeMode.Multiple);
                 }
-                sre.SetInputToDefaultAudioDevice();
-                sre.SpeechRecognized += SpeechRecognizer_SpeechRecognized;
-                sre.EndSilenceTimeout= TimeSpan.FromMilliseconds(50);
-                
-                sre.RecognizeAsync(RecognizeMode.Multiple);
-            }
+            });
         }
 
         private void SpeechRecognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
@@ -50,6 +55,7 @@ namespace Magicaster.SpellCasting
 
                 var choices = new Choices(w);
                 var builder = new GrammarBuilder(choices);
+                
                 gramars.Add(new Grammar(builder));
             }
 
@@ -62,13 +68,34 @@ namespace Magicaster.SpellCasting
             {
                 var s = from sp in Spells where sp.Words == words select sp;
                 var spell = s.FirstOrDefault();
-                if (spell!= null)
+                if (spell != null)
                 {
                     Console.WriteLine($"Casting spell:{spell.Words}");
                     SendKeys.SendWait(spell.KeyList);
-                    
+                    try
+                    {
+                        SpellCasted?.Invoke(this, new CastSpellEventAgrs(spell));
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
                 }
             }
+        }
+
+        public class CastSpellEventAgrs : EventArgs
+        {
+            public CastSpellEventAgrs()
+            {
+            }
+
+            public CastSpellEventAgrs(Spell s) : this()
+            {
+                Spell = s;
+            }
+
+            public Spell Spell { get; set; }
         }
     }
 }
